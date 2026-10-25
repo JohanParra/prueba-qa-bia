@@ -1,0 +1,426 @@
+{
+  "info": {
+    "name": "EnergIA · QA (prueba técnica)",
+    "description": "Requests listos para reproducir los defectos DEF-02 y DEF-03 (qa/05-defectos.md).\n\n**Uso:**\n1. Importa esta collection y el environment `EnergIA · local`.\n2. Selecciona el environment en la esquina superior derecha.\n3. Ejecuta **Auth → Login OK** (guarda el token automáticamente).\n4. Corre los requests de **Defectos** en el orden numerado.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "0. Health",
+      "item": [
+        {
+          "name": "GET health",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/health",
+            "description": "Smoke: API arriba sin autenticación."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('status ok', () => pm.expect(body.status).to.eql('ok'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1. Auth",
+      "item": [
+        {
+          "name": "Login OK (guarda token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('tiene access_token', () => pm.expect(body.access_token).to.be.a('string').and.not.empty);",
+                  "if (body.access_token) {",
+                  "  pm.environment.set('access_token', body.access_token);",
+                  "  console.log('access_token guardado en environment');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "description": "Login válido. Guarda `access_token` en el environment para el resto de requests."
+          }
+        },
+        {
+          "name": "Login contraseña incorrecta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"wrong\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "description": "CN-03: credenciales inválidas → 401."
+          }
+        },
+        {
+          "name": "GET /auth/me",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/auth/me",
+            "description": "Valida que el Bearer token funciona."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Defectos",
+      "description": "Orden sugerido: primero DEF-02 (búsqueda), luego DEF-03 (estado M-106).",
+      "item": [
+        {
+          "name": "DEF-02a · Buscar 109 (OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('count = 1', () => pm.expect(body.count).to.eql(1));",
+                  "pm.test('M-109 CRITICAL', () => {",
+                  "  pm.expect(body.rows[0].meter_id).to.eql('M-109');",
+                  "  pm.expect(body.rows[0].status).to.eql('CRITICAL');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pagination\": { \"page\": 1, \"size\": 10 },\n  \"filter\": { \"meter_id\": \"109\" }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/v1/meter/getAll",
+            "description": "Control positivo: búsqueda parcial `109` encuentra M-109."
+          }
+        },
+        {
+          "name": "DEF-02b · Buscar m-109 (BUG)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "// Docs: case-insensitive. Hoy count=0 (DEF-02).",
+                  "console.log('count con m-109 =', body.count);",
+                  "pm.test('hoy falla el contrato (count debería ser 1)', () => {",
+                  "  pm.expect(body.count).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pagination\": { \"page\": 1, \"size\": 10 },\n  \"filter\": { \"meter_id\": \"m-109\" }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/v1/meter/getAll",
+            "description": "**DEF-02:** `m-109` en minúsculas debería encontrar M-109 (docs case-insensitive). Hoy retorna `count: 0`."
+          }
+        },
+        {
+          "name": "DEF-03a · Detalle M-106",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "console.log('M-106 status =', body.status);",
+                  "console.log('anomaly type =', body.anomaly && body.anomaly.type);",
+                  "pm.test('hoy sale ALERT (debería ser NORMAL)', () => {",
+                  "  pm.expect(body.status).to.eql('ALERT');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/meter/getById/M-106",
+            "description": "**DEF-03:** M-106 es FALSE_POSITIVE → docs dicen NORMAL. Hoy el status es ALERT."
+          }
+        },
+        {
+          "name": "DEF-03b · Filtrar NORMAL (sin M-106)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const ids = (body.rows || []).map(r => r.meter_id);",
+                  "console.log('count NORMAL =', body.count, 'ids =', ids.join(', '));",
+                  "pm.test('M-106 no está en NORMALES (bug)', () => {",
+                  "  pm.expect(ids).to.not.include('M-106');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pagination\": { \"page\": 1, \"size\": 20 },\n  \"filter\": { \"status\": \"NORMAL\" }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/v1/meter/getAll",
+            "description": "M-106 no aparece en NORMAL (8 filas). Debería estar."
+          }
+        },
+        {
+          "name": "DEF-03c · Filtrar ALERT (incluye M-106)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const ids = (body.rows || []).map(r => r.meter_id);",
+                  "console.log('ALERT ids =', ids.join(', '));",
+                  "pm.test('hoy M-106 está en ALERT', () => {",
+                  "  pm.expect(ids).to.include('M-106');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pagination\": { \"page\": 1, \"size\": 20 },\n  \"filter\": { \"status\": \"ALERT\" }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/v1/meter/getAll",
+            "description": "Hoy retorna M-104 y M-106. Lo esperado: solo M-104."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Oráculo · Anomalías y medidores",
+      "item": [
+        {
+          "name": "GET anomaly/getAll (prioridad)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const rows = body.rows || body || [];",
+                  "const ids = Array.isArray(rows) ? rows.map(r => r.meter_id) : [];",
+                  "console.log('orden =', ids.join(' → '));",
+                  "pm.test('4 anomalías', () => pm.expect(ids.length).to.eql(4));",
+                  "pm.test('orden M-109, M-112, M-104, M-106', () => {",
+                  "  pm.expect(ids).to.eql(['M-109', 'M-112', 'M-104', 'M-106']);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/anomaly/getAll",
+            "description": "Orden del Despacho: M-109 → M-112 → M-104 → M-106."
+          }
+        },
+        {
+          "name": "GET meter/getById/M-109",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/meter/getById/M-109",
+            "description": "Detalle M-109: timestamps API (`detected_at` 14:00Z) vs lo que pinta la UI (DEF-01)."
+          }
+        },
+        {
+          "name": "GET dashboard/getSummary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/dashboard/getSummary",
+            "description": "Resumen del Despacho / dashboard."
+          }
+        },
+        {
+          "name": "Paginación API · página 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pagination\": { \"page\": 1, \"size\": 10 }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/v1/meter/getAll",
+            "description": "API pagina bien (10 filas). El bug DEF-04 es solo de UI."
+          }
+        },
+        {
+          "name": "Paginación API · página 2",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pagination\": { \"page\": 2, \"size\": 10 }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/v1/meter/getAll",
+            "description": "Debe retornar M-111 y M-112 (count total 12)."
+          }
+        },
+        {
+          "name": "Filtro status inválido (FOO)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filter\": { \"status\": \"FOO\" }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/v1/meter/getAll",
+            "description": "CN-11: entrada inválida → 400 con mensaje claro."
+          }
+        },
+        {
+          "name": "Anomalías sin token (401)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/anomaly/getAll",
+            "description": "CN-05: recurso protegido sin Authorization → 401."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

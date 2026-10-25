@@ -1,0 +1,13 @@
+{
+  "count": 12,
+  "size": 10,
+  "page": 1,
+  "pagesFloor": 1,
+  "siguienteDisabledConFloor": true,
+  "pagesCeil": 2,
+  "siguienteDisabledConCeil": false,
+  "expectedPage2Meters": [
+    "M-111",
+    "M-112"
+  ]
+}

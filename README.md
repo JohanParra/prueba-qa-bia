@@ -1,6 +1,7 @@
 # EnergIA · AI Energy Management Platform
 
-> **¿Vienes a presentar la prueba técnica de QA?** Empieza por [PRUEBA_QA.md](PRUEBA_QA.md).
+> **¿Vienes a presentar la prueba técnica de QA?** Empieza por [PRUEBA_QA.md](PRUEBA_QA.md).  
+> **Entrega de esta prueba:** [ENTREGA.md](ENTREGA.md) · documentos en [`qa/`](qa/) · automatización en [`qa/e2e/`](qa/e2e/).
 
 MVP para monitorear medidores eléctricos y usar IA para **detectar, explicar, priorizar y recomendar acciones** sobre anomalías de consumo.
 

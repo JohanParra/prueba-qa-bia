@@ -1,0 +1,1 @@
+{"status_code":400,"message":"Filtros inválidos","errors":["filter.status debe ser NORMAL, ALERT o CRITICAL"],"timestamp":"2026-10-24T15:38:49Z","path":"/api/v1/meter/getAll"}

@@ -1,0 +1,20 @@
+/**
+ * Propuesta: test que falla hoy en America/Bogota si formatPlantTime
+ * sigue usando getters locales. Vitest actual fuerza TZ=UTC en vite.config.ts,
+ * por eso format.test.ts no detecta DEF-01.
+ *
+ * Opción A — quitar `env: { TZ: 'UTC' }` del vite.config y fijar TZ en el test.
+ * Opción B — afirmar el contrato UTC independientemente del TZ del proceso:
+ */
+
+/*
+import { describe, expect, it } from 'vitest'
+import { formatPlantTime } from '@/lib/format'
+
+describe('hora de planta (contrato PRODUCT.md)', () => {
+  it('no convierte 14:00Z a la zona del navegador', () => {
+    // En Bogotá esto falla hoy (obtiene 12/09 09:00).
+    expect(formatPlantTime('2026-09-12T14:00:00Z')).toBe('12/09 14:00')
+  })
+})
+*/

@@ -1,0 +1,8 @@
+{
+  "meter_id": "M-106",
+  "status": "ALERT",
+  "anomaly_type": "FALSE_POSITIVE",
+  "severity": "LOW",
+  "priority": 4,
+  "docs_expected_status": "NORMAL"
+}

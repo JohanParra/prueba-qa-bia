@@ -1,0 +1,22 @@
+?   	energyai/cmd/api	[no test files]
+?   	energyai/cmd/inspect	[no test files]
+?   	energyai/docs	[no test files]
+ok  	energyai/internal/ai	0.455s
+ok  	energyai/internal/analysis	0.358s
+ok  	energyai/internal/analysis/baseline	0.346s
+ok  	energyai/internal/analysis/changes	0.349s
+ok  	energyai/internal/analysis/classify	0.416s
+?   	energyai/internal/analysis/model	[no test files]
+ok  	energyai/internal/analysis/quality	0.422s
+ok  	energyai/internal/analysis/stats	0.418s
+?   	energyai/internal/analysis/variables	[no test files]
+?   	energyai/internal/anomaly	[no test files]
+ok  	energyai/internal/auth	1.050s
+ok  	energyai/internal/config	0.168s
+?   	energyai/internal/dashboard	[no test files]
+ok  	energyai/internal/data	0.170s
+?   	energyai/internal/httpx	[no test files]
+ok  	energyai/internal/meter	0.198s
+ok  	energyai/internal/server	0.814s
+?   	energyai/internal/store	[no test files]
+?   	energyai/internal/testutil	[no test files]

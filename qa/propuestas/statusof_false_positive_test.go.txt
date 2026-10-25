@@ -1,0 +1,28 @@
+// Propuesta (no integrada en el paquete): añadir a service_test.go / enums tests.
+// Debe FALLAR con el código actual de StatusOf.
+
+package meter_test_proposal
+
+/*
+func TestStatusOfFalsePositiveIsNormal(t *testing.T) {
+	a := &model.Anomaly{
+		Anomaly:  true,
+		Type:     model.TypeFalsePositive,
+		Severity: model.SeverityLow,
+	}
+	if got := StatusOf(a); got != StatusNormal {
+		t.Fatalf("StatusOf(FALSE_POSITIVE)=%s, docs exigen NORMAL", got)
+	}
+}
+
+func TestGetAllCaseInsensitiveMeterID(t *testing.T) {
+	svc := newTestService(t)
+	res := svc.GetAll(PagedRequest{
+		Pagination: httpx.Pagination{Page: 1, Size: 10},
+		Filter:     Filter{MeterID: "m-109"},
+	})
+	if res.Count != 1 || res.Rows[0].MeterID != "M-109" {
+		t.Fatalf("busqueda m-109: count=%d rows=%v (docs: case-insensitive)", res.Count, res.Rows)
+	}
+}
+*/

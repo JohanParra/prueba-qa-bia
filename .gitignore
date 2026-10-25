@@ -11,3 +11,8 @@ dist
 *.tsbuildinfo
 frontend/.impeccable/review
 frontend/.impeccable/questions
+
+# Local tooling / caches
+.pnpm-store/
+.atl/
+.DS_Store

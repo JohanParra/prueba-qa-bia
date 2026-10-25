@@ -1,0 +1,1 @@
+{"page":1,"size":10,"count":1,"rows":[{"meter_id":"M-109","status":"CRITICAL","severity":"HIGH","anomaly_type":"REAL_ANOMALY","priority":1,"consumption_kwh":2207.6,"baseline_kwh":1052.15,"variation_pct":109.82,"last_reading_at":"2026-09-14T23:00:00Z"}]}
